@@ -73,6 +73,7 @@ def filter_keys(keyword_dict):
             keywords.append(item["text"])
 
     stringed_keywords = (" ").join(keywords)
+    return stringed_keywords
 
 #------------------------------------------------------------
 
@@ -121,6 +122,7 @@ def get_trump_texts():
 #returns a list of lists with a list for each article [headline, url, snippet, date]
 def get_articles(tweet):
     watson = run_watson(tweet)
+    print filter_keys(watson)
     query = urllib2.quote(filter_keys(watson))
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001" %(NYT_API_KEY, query)
     r = requests.get(url)
