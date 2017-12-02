@@ -15,16 +15,36 @@ def oauth_twitter(url, key, secret, http_method="GET", post_body="", http_header
     return content
 
 
-def get_twitter():
-    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent"
+def get_trump_url():
+    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended"
     content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-    data = json.loads(content[1])
-    return data
+    statuses = json.loads(content[1])['statuses']
+    print statuses[0]['full_text']
+    print statuses[1]['full_text']
+    # print "\n\n\n ^statuses \n\n\n\n"
+    url_list = []
+    for status in statuses:
+        url_list.append(status['entities']['urls'])
+    return url_list
 
-
+def get_trump_texts():
+    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended"
+    content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+    statuses = json.loads(content[1])['statuses']
+    text_list = []
+    for status in statuses:
+        print "status:\n\n\n\n"
+        print status
+        try:
+            text_list.append(status['full_text'])
+        except KeyError:
+            pass
+    return text_list
 
 
 if __name__ == "__main__":
-    statuses = get_twitter()['statuses']
-    for status in statuses:
-        print(status['entities']['urls'])
+    trump_urls = get_trump_url()
+    print trump_urls
+    print "\n\n==============\n\n"
+    trump_texts = get_trump_texts()
+    print trump_texts
