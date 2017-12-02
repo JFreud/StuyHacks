@@ -1,4 +1,5 @@
 import requests, json, twitter, oauth2, ast, urllib2
+from requests.auth import HTTPBasicAuth
 
 NYT_API_KEY = "a7e4cb2fa4bf4516b1ca846478b5db68"
 TWITTER_CONSUMER_KEY = "woOeXTL0XV2dO6YQuVLEdx7GP"
