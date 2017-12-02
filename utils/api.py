@@ -1,4 +1,4 @@
-import requests, json, twitter, oauth2
+import requests, json, twitter, oauth2, ast
 
 NYT_API_KEY = "a7e4cb2fa4bf4516b1ca846478b5db68"
 TWITTER_CONSUMER_KEY = "woOeXTL0XV2dO6YQuVLEdx7GP"
@@ -11,17 +11,20 @@ def oauth_twitter(url, key, secret, http_method="GET", post_body="", http_header
     consumer = oauth2.Consumer(key=TWITTER_CONSUMER_KEY, secret=TWITTER_CONSUMER_SECRET)
     token = oauth2.Token(key=TWITTER_ACCESS_TOKEN, secret=TWITTER_ACCESS_SECRET)
     client = oauth2.Client(consumer, token)
-    resp, content = client.request( url, method=http_method, body=post_body, headers=http_headers )
+    content = client.request( url, method=http_method, body=post_body, headers=http_headers )
     return content
 
 
 def get_twitter():
-    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&count=4"
-    content = oauth_req(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-    return content
+    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent"
+    content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+    data = json.loads(content[1])
+    return data
 
 
 
 
 if __name__ == "__main__":
-    print(get_twitter())
+    statuses = get_twitter()['statuses']
+    for status in statuses:
+        print(status['entities']['urls'])
