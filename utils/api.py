@@ -48,7 +48,8 @@ def filter_keys(keyword_dict):
     for item in keyword_dict :
         #print "DDDDD: " + item["text"]
         if len(keywords) ==3:
-            return keywords
+            stringed_keywords = (" ").join(keywords)
+            return stringed_keywords 
 
         counter = 0
         repeated = False
@@ -73,6 +74,7 @@ def filter_keys(keyword_dict):
             keywords.append(item["text"])
 
     stringed_keywords = (" ").join(keywords)
+    #print "stringed_keys: " + stringed_keywords
     return stringed_keywords
 
 #------------------------------------------------------------
@@ -127,7 +129,9 @@ def get_articles(tweet):
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001" %(NYT_API_KEY, query)
     r = requests.get(url)
     data = r.text
-    articles = json.loads(data)[docs]
+    
+    articles = json.loads(data)["response"]["docs"]
+    #print articles
     article_list = []
     for article in articles:
         articleInfo = []
@@ -136,6 +140,8 @@ def get_articles(tweet):
         articleInfo.append(article["snippet"])
         articleInfo.append(article["pub_date"])
         article_list.append(articleInfo)
+    print article_list
+        
     return article_list
 
 
