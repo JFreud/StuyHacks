@@ -25,54 +25,54 @@ def pretty(d, indent=0):
 
 #--------------------WATSON ----------------------------------
 def run_watson(tweet):
-    
+
     encoded_tweet = urllib2.quote(tweet)
-    
+
     link =  'https://gateway.watsonplatform.net/natural-language-understanding/api/v1/analyze?version=2017-02-27&text=' + encoded_tweet + "&features=keywords"
 
     results = requests.get(link, auth=HTTPBasicAuth(IBM_USER,IBM_PASS))
 
-    #results is now a dictionary 
+    #results is now a dictionary
     results = results.json()
 
     print pretty(results)
-    return results 
+    return results
 
 
 def filters_keys(keyword_dict):
     keyword_dict = keyword_dict["keywords"]
     keywords = []
     keywords.append(keyword_dict[0]["text"])
-    
+
     for item in keyword_dict :
         #print "DDDDD: " + item["text"]
         if len(keywords) ==3:
             return keywords
-        
+
         counter = 0
         repeated = False
-        
+
         for word in keywords:
             word_list1 = word.split(" ")
             #print word_list1
             for i in word_list1:
                if i in item["text"]:
                   repeated = True
-            #print repeated 
-                  
-            
+            #print repeated
+
+
             if item["text"] in word or repeated:
-                #print "SDFFFFFFFFFFFFF" 
+                #print "SDFFFFFFFFFFFFF"
                 break
             else:
                 counter +=1
-                
+
         if counter == len(keywords):
-            #print item["text"] 
+            #print item["text"]
             keywords.append(item["text"])
 
     stringed_keywords = (" ").join(keywords)
-   
+
 #------------------------------------------------------------
 
 #------------------------------TWITTER----------------------------
@@ -117,8 +117,8 @@ def get_trump_texts():
 #------------------------------NYT------------------------------
 
 #returns dict keyed by article headline and value is a list of [url, snippet, date]
-def get_articles():
-    watson = run_watson()
+def get_articles(tweet):
+    watson = run_watson(tweet)
     query = urllib2.quote(filter_keys(watson))
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001" %(NYT_API_KEY, query)
     r = requests.get(url)
@@ -139,4 +139,5 @@ if __name__ == "__main__":
     print trump_urls
     print "\n\n==============\n\n"
     trump_texts = get_trump_texts()
-    print trump_texts
+    for tweet in trump_texts:
+        print get_articles(tweet)
