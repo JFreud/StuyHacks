@@ -13,13 +13,15 @@ def oauth_twitter(url, key, secret, http_method="GET", post_body="", http_header
     content = client.request( url, method=http_method, body=post_body, headers=http_headers )
     return content
 
-
-def get_trump_url():
+def get_trump():
     url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended"
     content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-    statuses = json.loads(content[1])['statuses']
-    print statuses[0]['full_text']
-    print statuses[1]['full_text']
+    return json.loads(content[1])['statuses']
+
+def get_trump_url():
+    statuses = get_trump()
+    # print statuses[0]['full_text']
+    # print statuses[1]['full_text']
     # print "\n\n\n ^statuses \n\n\n\n"
     url_list = []
     for status in statuses:
@@ -27,13 +29,11 @@ def get_trump_url():
     return url_list
 
 def get_trump_texts():
-    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended"
-    content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-    statuses = json.loads(content[1])['statuses']
+    statuses = get_trump()
     text_list = []
     for status in statuses:
-        print "status:\n\n\n\n"
-        print status
+        # print "status:\n\n\n\n"
+        # print status
         try:
             text_list.append(status['full_text'])
         except KeyError:
@@ -41,14 +41,6 @@ def get_trump_texts():
     return text_list
 
 
-if __name__ == "__main__":
-    trump_urls = get_trump_url()
-    print trump_urls
-    print "\n\n==============\n\n"
-    trump_texts = get_trump_texts()
-    print trump_texts
-    data = json.loads(content[1])
-    return data
 
 #returns dict keyed by article headline and value is a list of [url, snippet, date]
 def get_articles():
@@ -66,3 +58,11 @@ def get_articles():
         articleInfo.append(article["pub_date"])
         article_list[article["headline"]["main"]] = articleInfo
     return article_list
+
+
+if __name__ == "__main__":
+    trump_urls = get_trump_url()
+    print trump_urls
+    print "\n\n==============\n\n"
+    trump_texts = get_trump_texts()
+    print trump_texts
