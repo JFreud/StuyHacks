@@ -118,6 +118,7 @@ def get_trump_texts():
 #------------------------------NYT------------------------------
 
 #returns dict keyed by article headline and value is a list of [url, snippet, date]
+#returns a list of lists with a list for each article [headline, url, snippet, date]
 def get_articles(tweet):
     watson = run_watson(tweet)
     query = urllib2.quote(filter_keys(watson))
@@ -125,14 +126,17 @@ def get_articles(tweet):
     r = requests.get(url)
     data = r.text
     articles = json.loads(data)[docs]
-    article_list = {}
+    article_list = []
     for article in articles:
         articleInfo = []
+        articleInfo.append(article["headline"]["main"])
         articleInfo.append(article["web_url"])
         articleInfo.append(article["snippet"])
         articleInfo.append(article["pub_date"])
-        article_list[article["headline"]["main"]] = articleInfo
+        article_list.append(articleInfo)
     return article_list
+
+
 #-----------------------------------------------------------------
 
 if __name__ == "__main__":
