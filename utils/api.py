@@ -40,7 +40,7 @@ def run_watson(tweet):
     return results
 
 
-def filters_keys(keyword_dict):
+def filter_keys(keyword_dict):
     keyword_dict = keyword_dict["keywords"]
     keywords = []
     keywords.append(keyword_dict[0]["text"])
