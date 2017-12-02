@@ -1,4 +1,4 @@
-import requests, json, twitter, oauth2, ast, urllib2
+import requests, json, twitter, oauth2, ast, urllib2, time
 from requests.auth import HTTPBasicAuth
 from unidecode import unidecode
 
@@ -8,8 +8,8 @@ TWITTER_CONSUMER_SECRET = "hE1w9Ott1NWjb8OIXlpbhRcyvO54TJt7sIJ8mPYeVXsKvRI2O7"
 TWITTER_ACCESS_TOKEN = "1426838582-YkU3XAVMUGXuUAazLdsIFyF5oFE4wpBcbkcq7o3"
 TWITTER_ACCESS_SECRET = "oecREA8AiMacla9ROxDKodPxKqy5D4vs2bEmfXWTrIE1G"
 
-IBM_USER = "ba0b75ff-9d1a-46b4-abfb-cb44113a2449"
-IBM_PASS= "CdnsqCmfLbns"
+IBM_USER = "41c758d4-8e27-486c-af9d-0a9172fb9249"
+IBM_PASS= "rg14raDoZ2CZ"
 
 def pretty(d, indent=0):
    for key, value in d.items():
@@ -38,7 +38,7 @@ def run_watson(tweet):
     #results is now a dictionary
     results = results.json()
 
-    #print pretty(results)
+    pretty(results)
     return results
 
 
@@ -99,13 +99,18 @@ def get_trump_urls():
     # print statuses[0]['full_text']
     # print statuses[1]['full_text']
     # print "\n\n\n ^statuses \n\n\n\n"
-    url_list = []
+    urls = []
     for status in statuses:
-        url_list.append(status['entities']['urls'])
+        urls.append(status['entities']['urls'])
+    urls = urls[1:]
+    url_list= []
+    for url in urls:
+        if len(url) != 0:
+            url_list.append("https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2FrealDonaldTrump%2Fstatus%2F" + url[0]['expanded_url'][-18:])
     return url_list
 
 def get_trump_texts():
-    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended&count=5"
+    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended"
     content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
     statuses = json.loads(content[1])['statuses']
     text_list = []
@@ -126,7 +131,7 @@ def get_trump_texts():
 #returns a list of lists with a list for each article [headline, url, snippet, date]
 def get_articles(tweet):
     watson = run_watson(tweet)
-    #print filter_keys(watson)
+    print filter_keys(watson)
     query = urllib2.quote(filter_keys(watson))
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001&count=5" %(NYT_API_KEY, query)
     r = requests.get(url)
@@ -144,15 +149,50 @@ def get_articles(tweet):
         article_list.append(articleInfo)
     #print article_list
 
+    if len(article_list) == 0:
+        #print "IT WAS EMPTY :OOOOOO \n"
+        #print query
+        query = query.split("%20")[0]
+        #print query
+        query += " Trump"
+        query = urllib2.quote(query)
+        #print "QUERY"
+        #print query
+        time.sleep(1)
+        url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001&count=5" %(NYT_API_KEY, query)
+        r = requests.get(url)
+        data = r.text
+        #print json.loads(data)
+        articles = json.loads(data)["response"]["docs"]
+        #print articles
+        article_list = []
+        for article in articles:
+            articleInfo = []
+            articleInfo.append(article["headline"]["main"])
+            articleInfo.append(article["web_url"])
+            articleInfo.append(article["snippet"])
+            articleInfo.append(article["pub_date"])
+            article_list.append(articleInfo)
+
+
     return article_list
 
 
 #-----------------------------------------------------------------
 
+#------------------------make one thing
+
+def consolidate():
+    all_dict = dict()
+    urls = get_trump_urls()
+    tweets = get_trump_texts()
+    return all_dict
+
 if __name__ == "__main__":
     trump_urls = get_trump_urls()
     print trump_urls
-    print "\n\n==============\n\n"
-    trump_texts = get_trump_texts()
-    for tweet in trump_texts:
-        print get_articles(tweet)
+    # print "\n\n==============\n\n"
+    # trump_texts = get_trump_texts()
+    # #print get_trump_texts()
+    #
+    # print consolidate()
