@@ -1,5 +1,6 @@
 import requests, json, twitter, oauth2, ast, urllib2
 from requests.auth import HTTPBasicAuth
+from unidecode import unidecode
 
 NYT_API_KEY = "a7e4cb2fa4bf4516b1ca846478b5db68"
 TWITTER_CONSUMER_KEY = "woOeXTL0XV2dO6YQuVLEdx7GP"
@@ -27,6 +28,7 @@ def pretty(d, indent=0):
 #--------------------WATSON ----------------------------------
 def run_watson(tweet):
 
+    tweet = unidecode(tweet[:-24])
     encoded_tweet = urllib2.quote(tweet)
 
     link =  'https://gateway.watsonplatform.net/natural-language-understanding/api/v1/analyze?version=2017-02-27&text=' + encoded_tweet + "&features=keywords"
@@ -36,7 +38,7 @@ def run_watson(tweet):
     #results is now a dictionary
     results = results.json()
 
-    print pretty(results)
+    #print pretty(results)
     return results
 
 
@@ -49,7 +51,7 @@ def filter_keys(keyword_dict):
         #print "DDDDD: " + item["text"]
         if len(keywords) ==3:
             stringed_keywords = (" ").join(keywords)
-            return stringed_keywords 
+            return stringed_keywords
 
         counter = 0
         repeated = False
@@ -103,7 +105,7 @@ def get_trump_urls():
     return url_list
 
 def get_trump_texts():
-    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended"
+    url = "https://api.twitter.com/1.1/search/tweets.json?q=from:%40realDonaldTrump&result_type=recent&tweet_mode=extended&count=5"
     content = oauth_twitter(url, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
     statuses = json.loads(content[1])['statuses']
     text_list = []
@@ -124,12 +126,12 @@ def get_trump_texts():
 #returns a list of lists with a list for each article [headline, url, snippet, date]
 def get_articles(tweet):
     watson = run_watson(tweet)
-    print filter_keys(watson)
+    #print filter_keys(watson)
     query = urllib2.quote(filter_keys(watson))
-    url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001" %(NYT_API_KEY, query)
+    url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api_key=%s&q=%s&begin_date=20171001&count=5" %(NYT_API_KEY, query)
     r = requests.get(url)
     data = r.text
-    
+    #print json.loads(data)
     articles = json.loads(data)["response"]["docs"]
     #print articles
     article_list = []
@@ -140,8 +142,8 @@ def get_articles(tweet):
         articleInfo.append(article["snippet"])
         articleInfo.append(article["pub_date"])
         article_list.append(articleInfo)
-    print article_list
-        
+    #print article_list
+
     return article_list
 
 
