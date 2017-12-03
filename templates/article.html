@@ -1,0 +1,23 @@
+{% extends "home.html" %}
+{% block content1 %}
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+          {% for each in get_articles(tweet) %}
+  <h4><a href = {{ each[1] }}> {{ each[0] }}</a></h4><br>
+  {{ each[3] }}<br>
+  {{ each[2] }}
+          {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  {{sleep(1)}}
+{% endblock %}
